@@ -29,7 +29,7 @@ export const App = () => {
         };
 
           setImg(pImg => [...pImg, ...gallery.hits,]);
-          setTotalHits(totalHits);
+          setTotalHits(gallery.totalHits);
 
         if (page === 1) {
           return toast.success(`We found ${gallery.totalHits} images`)
@@ -50,7 +50,6 @@ export const App = () => {
     setQuery(search);
     setImg([]);
     setPage(1);
-    // setErr()
   }
   const handleLoad = () => {
     setPage(pPage =>  pPage + 1 )
@@ -63,7 +62,7 @@ export const App = () => {
         <SearchBar onSubmit={handleSubmit} />
         {img.length > 0 && <ImageGallery images={img} />}
         {loading > 0 && <Loader/> }
-        {img.length > 0 && pages > 1 && !loading && (<Button onLoad={handleLoad} />)}
+        {img.length > 0 && pages > 1 && !loading &&(<Button onLoad={handleLoad} />)}
         <Toaster position='butom' />
         <GlobalStyled/>
       </div>

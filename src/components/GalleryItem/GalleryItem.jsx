@@ -1,26 +1,21 @@
-import { Component } from "react"
+import { useState } from "react"
 import { GalleryItem, GalleryImg } from "./GalleryItem.styled"
 import { Modal } from "components/Modal/Modal";
 
-export class ImageGalleryItem extends Component {
-    state = {
-        show: false
+export const ImageGalleryItem = ({images}) => {
+    const [show, setShow] = useState(false)
+    
+    const openCloseModal = () => {
+        setShow(!show);
     }
-
-    openCloseModal = () => {
-        this.setState(pState => ({show: !pState.show}))
-    }
-    render() {
-        const openModal = this.openCloseModal;
-        const images = this.props.images;
-        const { show } = this.state;
+    
     show ? (document.body.style.overflow = 'hidden') : (document.body.style.overflow = 'auto');
         return (
             <>
-                <GalleryItem onClick={openModal}>
+                <GalleryItem onClick={openCloseModal}>
             <GalleryImg src={images.webformatURL} alt={images.tags} />
         </GalleryItem>
-                {show && <Modal onClose={openModal} images={images}/>}
+                {show && <Modal onClose={openCloseModal} images={images}/>}
             </>
         )
-}}
+}
