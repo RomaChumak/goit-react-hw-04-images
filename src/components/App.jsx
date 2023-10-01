@@ -50,6 +50,7 @@ export const App = () => {
     setQuery(search);
     setImg([]);
     setPage(1);
+    setErr(err)
   }
   const handleLoad = () => {
     setPage(pPage =>  pPage + 1 )
