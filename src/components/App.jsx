@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { fetchImages } from './api';
 import toast, { Toaster } from 'react-hot-toast';
 import { SearchBar } from './Searchbar/Searchbar';
@@ -6,70 +6,67 @@ import { ImageGallery } from './Gallery/GalleryImg';
 import { Button } from './LoadMore/LoadMore';
 import { GlobalStyled } from './GlobalStyled';
 import { Loader } from './Loader/Loader';
-export class App extends Component {
-  state = {
-    query: '',
-    img: [],
-    page: 1,
-    totalHits: 0,
-    loading: false,
-    err: false,
-  }; 
-  
-  async componentDidUpdate(prevProps, prevState) {
-    if (this.state.query !== prevState.query || this.state.page !== prevState.page) {
-      try {
-       this.setState({loading: true})
-        const gallery = await fetchImages(this.state.query, this.state.page)
+export const App = () => {
+
+  const [page, setPage] = useState(1);
+  const [totalHits, setTotalHits] = useState(0);
+  const [loading, setLoading] = useState(false)
+  const [err, setErr] = useState(false)
+  const [img, setImg] = useState([]);
+  const [query, setQuery] = useState('');
+  useEffect(() => {
+    if (!query) {
+      return;
+    }
+      async function LoadImg() {
+    
+        try {
+          setLoading(true);
+        const gallery = await fetchImages(query, page)
         if (!gallery.totalHits) {
           toast.error('Nothing was found for your request')
+          return;
         };
 
-        this.setState(pState => ({ img: [...pState.img, ...gallery.hits], totalHits: gallery.totalHits, }))
+          setImg(pImg => [...pImg, ...gallery.hits,]);
+          setTotalHits(totalHits);
 
-        if (this.state.img.length < 12 && gallery.totalHits) {
+        if (page === 1) {
           return toast.success(`We found ${gallery.totalHits} images`)
         }
 
      } catch (error) {
-        this.setState({ err: true });
+          setErr(true);
         toast.error(' Something went wrong. Try again later')
-      } finally {
-        this.setState({loading: false, err: false})
+        } finally {
+          setErr(false);
+          setLoading(false);
      }
      }
- 
-  
- }
-  handleSubmit = (search) => {
-    this.setState({
-      query: `${search}`,
-      img: [],
-      page: 1,
-  })
+    LoadImg();
+  }, [query, page])
+
+  const handleSubmit = (search) => {
+    setQuery(search);
+    setImg([]);
+    setPage(1);
+    // setErr()
   }
-  handleLoad = () => {
-    this.setState(pState =>({
-      page: pState.page + 1
-    }))
+  const handleLoad = () => {
+    setPage(pPage =>  pPage + 1 )
     // console.log(5)
   }
-  render() {
-    const Load = this.handleLoad;
-    const submit = this.handleSubmit;
-    const { img } = this.state;
-    const { totalHits } = this.state;
-    const { loading } = this.state
-    const pages = totalHits / 12
+  
+  const pages = Math.ceil(totalHits / img.length);
     return (
       <div>
-        <SearchBar onSubmit={submit} />
-        {totalHits > 0 && <ImageGallery images={img} />}
+        <SearchBar onSubmit={handleSubmit} />
+        {img.length > 0 && <ImageGallery images={img} />}
         {loading > 0 && <Loader/> }
-        {totalHits > 0 && pages > 1 && !loading && (<Button onLoad={Load} />)}
+        {img.length > 0 && pages > 1 && !loading && (<Button onLoad={handleLoad} />)}
         <Toaster position='butom' />
         <GlobalStyled/>
       </div>
     );
-  }
+  
 }
